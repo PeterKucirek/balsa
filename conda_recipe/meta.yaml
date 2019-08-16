@@ -17,5 +17,4 @@ requirements:
     - "numba >=0.33"
     - "numexpr >=2.6"
     - "astor >=0.5"
-    - "six >=1.10"
 

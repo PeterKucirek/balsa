@@ -8,12 +8,7 @@ import numpy as np
 import pandas as pd
 from contextlib import contextmanager
 
-from six import string_types
-
-try:
-    from pathlib import Path
-except ImportError:
-    Path = None
+from pathlib import Path
 
 
 def coerce_matrix(matrix, allow_raw=True, force_square=True):
@@ -93,10 +88,10 @@ def open_file(file_handle, **kwargs):
 
     """
     opened = False
-    if isinstance(file_handle, string_types):
+    if isinstance(file_handle, str):
         f = open(file_handle, **kwargs)
         opened = True
-    elif Path is not None and isinstance(file_handle, Path):
+    elif isinstance(file_handle, Path):
         f = file_handle.open(**kwargs)
         opened = True
     else:

@@ -1,10 +1,6 @@
-from __future__ import division, absolute_import, print_function, unicode_literals
-
 from keyword import kwlist
 
 from pandas import DataFrame, Series, Index, MultiIndex
-from six import iteritems
-import six
 import re
 import tokenize
 
@@ -91,7 +87,7 @@ def _enumerate_frame_categories(frames):
 
 
 def _align_frame_categories(frames, column_categories):
-    for col_name, all_categories in iteritems(column_categories):
+    for col_name, all_categories in column_categories.items():
         sorted_categories = sorted(all_categories)
         for frame in frames:
             if col_name not in frame: continue
@@ -133,32 +129,16 @@ def sum_df_sequence(seq, fill_value=0):
     return accumulator
 
 
-if six.PY3:
-    def is_identifier(name):
-        """
-        Tests that the name is a valid Python variable name and does not collide with reserved keywords
+def is_identifier(name):
+    """
+    Tests that the name is a valid Python variable name and does not collide with reserved keywords
 
-        Args:
-            name (str): Name to test
+    Args:
+        name (str): Name to test
 
-        Returns:
-            bool: If the name is 'Pythonic'
+    Returns:
+        bool: If the name is 'Pythonic'
 
-        """
+    """
 
-        return name.isidentifier() and name not in kwlist
-else:
-    def is_identifier(name):
-        """
-        Tests that the name is a valid Python variable name and does not collide with reserved keywords
-
-        Args:
-            name (str): Name to test
-
-        Returns:
-            bool: If the name is 'Pythonic'
-
-        """
-
-        return bool(re.match(tokenize.Name + '$', name)) and name not in kwlist
-
+    return name.isidentifier() and name not in kwlist

@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 import numexpr as ne
-from six import iteritems
 
 
 def tlfd(values, bin_start=0, bin_end=200, bin_step=2, weights=None, intrazonal=None, label_type='MULTI',
@@ -111,7 +110,7 @@ def _get_distance_equation(method):
 
 def _prepare_distance_kwargs(kwargs):
     defaults = {'coord_unit': 1.0, 'earth_radius_factor': 1.0, 'pi': np.pi}
-    for key, val in iteritems(defaults):
+    for key, val in defaults.items():
         if key not in kwargs:
             kwargs[key] = val
 

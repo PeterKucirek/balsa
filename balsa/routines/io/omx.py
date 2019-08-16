@@ -8,7 +8,6 @@ wrapper functions that produce Pandas DataFrames and Series directly from OMX fi
 
 import numpy as np
 import pandas as pd
-from six import iteritems, itervalues, iterkeys
 
 from ..matrices import fast_unstack
 
@@ -96,15 +95,15 @@ if omx is not None:
         matrices, zone_index = _prep_matrix_dict(matrices, zone_index)
 
         if descriptions is None:
-            descriptions = {name: '' for name in iterkeys(matrices)}
+            descriptions = {name: '' for name in matrices.keys()}
         if attrs is None:
-            attrs = {name: None for name in iterkeys(matrices)}
+            attrs = {name: None for name in matrices.keys()}
 
         file = str(file)  # Converts from Path
         with omx.open_file(file, mode='w', title=title) as omx_file:
             omx_file.create_mapping(mapping, zone_index.tolist())
 
-            for name, array in iteritems(matrices):
+            for name, array in matrices.items():
                 description = descriptions[name]
                 attr = attrs[name]
 
@@ -131,7 +130,7 @@ if omx is not None:
         return checked, zone_index
 
     def _check_types(matrices):
-        gen = iter(itervalues(matrices))
+        gen = iter(matrices.values())
         first = next(gen)
 
         item_type = 'RAW'
@@ -151,7 +150,7 @@ if omx is not None:
         return item_type
 
     def _check_raw_matrices(matrices):
-        gen = iter(iteritems(matrices))
+        gen = iter(matrices.items())
         name, matrix = next(gen)
 
         n_dim = len(matrix.shape)
@@ -183,7 +182,7 @@ if omx is not None:
         return retval, n
 
     def _check_matrix_series(matrices):
-        gen = iter(iteritems(matrices))
+        gen = iter(matrices.items())
         name, matrix = next(gen)
 
         tall_index = matrix.index
@@ -200,7 +199,7 @@ if omx is not None:
         return retval, zone_index
 
     def _check_matrix_frames(matrices):
-        gen = iter(iteritems(matrices))
+        gen = iter(matrices.items())
         name, matrix = next(gen)
 
         zone_index = matrix.index

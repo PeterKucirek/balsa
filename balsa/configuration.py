@@ -1,16 +1,10 @@
-from __future__ import division, absolute_import, print_function, unicode_literals
-
 import json
 import os
 from collections import OrderedDict
-from six import iteritems, StringIO
 import re
+from io import StringIO
 
-try:
-    from pathlib import Path
-    PATHLIB_LOADED = True
-except ImportError:
-    PATHLIB_LOADED = False
+from pathlib import Path
 
 from .routines.general import is_identifier
 from .routines.io.common import open_file
@@ -126,19 +120,18 @@ class ConfigValue(object):
             for item in self.as_type(list)
         ]
 
-    if PATHLIB_LOADED:
-        def as_path(self, parent=None):
-            """
-            Resolves the value to Path type (available only when using Python 3)
+    def as_path(self, parent=None):
+        """
+        Resolves the value to Path type (available only when using Python 3)
 
-            Args:
-                parent: Optional parent folder if this is a relative path
+        Args:
+            parent: Optional parent folder if this is a relative path
 
-            Raises:
-                ConfigTypeError: If the value cannot be resolved to Path
-            """
-            if parent is not None: return Path(parent) / Path(self.as_str())
-            return Path(self.as_str())
+        Raises:
+            ConfigTypeError: If the value cannot be resolved to Path
+        """
+        if parent is not None: return Path(parent) / Path(self.as_str())
+        return Path(self.as_str())
 
     def as_set(self, sub_type=None):
         """
@@ -194,7 +187,7 @@ class Config(object):
         self._parent = parent
         self._file = file_
 
-        for key, original_value in iteritems(config_dict):
+        for key, original_value in config_dict.items():
             if isinstance(original_value, dict):
                 value = Config(original_value, name=key, parent=self, file_=file_)
             elif isinstance(original_value, (list, set)):
@@ -273,7 +266,7 @@ class Config(object):
         if value_type is None: value_type = any_type
 
         retval = OrderedDict()
-        for key, val in iteritems(self._contents):
+        for key, val in self._contents.items():
             try:
                 key = key_type(key)
             except ValueError:
@@ -295,7 +288,7 @@ class Config(object):
     def serialize(self):
         """Recursively converts the Config back to primitive dictionaries"""
         child_dict = OrderedDict()
-        for attr, item in iteritems(self._contents):
+        for attr, item in self._contents.items():
             child_dict[attr] = item.serialize()
         return child_dict
 
