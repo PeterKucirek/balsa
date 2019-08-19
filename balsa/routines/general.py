@@ -1,4 +1,5 @@
 from keyword import kwlist
+from typing import Union, Iterable
 
 from pandas import DataFrame, Series, Index, MultiIndex
 import re
@@ -25,7 +26,7 @@ def reindex_series(series, target_series, source_levels=None, target_levels=None
     return reindexed
 
 
-def align_categories(iterable):
+def align_categories(iterable: Iterable[Union[Series, DataFrame]]) -> None:
     """
     Pre-processing step for pandas.concat() which attempts to align any Categorical series in the sequence to using the
     same set of categories. It passes through the sequence twice: once to accumulate the complete set of all categories
@@ -98,7 +99,7 @@ def _align_frame_categories(frames, column_categories):
             s.cat.reorder_categories(sorted_categories, inplace=True)
 
 
-def sum_df_sequence(seq, fill_value=0):
+def sum_df_sequence(seq: Iterable[DataFrame], fill_value: Union[int, float] = 0) -> DataFrame:
     """
     Sums over a sequence of DataFrames, even if they have different indexes or columns, filling in 0 (or a value of your
     choice) for missing rows or columns. Useful when you have a sequence of DataFrames which are supposed to have
@@ -129,7 +130,7 @@ def sum_df_sequence(seq, fill_value=0):
     return accumulator
 
 
-def is_identifier(name):
+def is_identifier(name: str) -> bool:
     """
     Tests that the name is a valid Python variable name and does not collide with reserved keywords
 

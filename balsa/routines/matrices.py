@@ -1,4 +1,4 @@
-from __future__ import division as _division
+from typing import Union, List, Callable, Iterable
 
 import multiprocessing as _mp
 import numba as _nb
@@ -6,11 +6,12 @@ import numpy as _np
 import pandas as _pd
 from pandas import Series, DataFrame, Index
 import numexpr as _ne
+from deprecated import deprecated
 
 EPS = 1.0e-7
 
 
-def matrix_balancing_1d(m, a, axis):
+def matrix_balancing_1d(m: _np.ndarray, a: _np.ndarray, axis: int) -> _np.ndarray:
     """ Balances a matrix using a single constraint.
 
     Args:
@@ -30,8 +31,8 @@ def matrix_balancing_1d(m, a, axis):
     return _balance(m, a, axis)
 
 
-def matrix_balancing_2d(m, a, b, totals_to_use='raise', max_iterations=1000,
-                        rel_error=0.0001, n_procs=1):
+def matrix_balancing_2d(m: _np.ndarray, a: _np.ndarray, b: _np.ndarray, max_iterations: int = 1000,
+                        rel_error: float = 0.0001, n_procs: int = 1) -> _np.ndarray:
     """ Balances a two-dimensional matrix using iterative proportional fitting.
 
     Args:
@@ -165,7 +166,8 @@ def _nbf_bucket_round(a_, decimals=0):
     return b.reshape(a_.shape)
 
 
-def matrix_bucket_rounding(m, decimals=0):
+def matrix_bucket_rounding(m: Union[_np.ndarray, _pd.DataFrame], decimals: int = 0
+                           ) -> Union[_np.ndarray, _pd.DataFrame]:
     """ Bucket rounds to the given number of decimals.
 
     Args:
@@ -201,7 +203,9 @@ def matrix_bucket_rounding(m, decimals=0):
         return b.reshape(m.shape)
 
 
-def split_zone_in_matrix(base_matrix, old_zone, new_zones, proportions):
+@deprecated(reason="Use disaggregate_matrix instead")
+def split_zone_in_matrix(base_matrix: DataFrame, old_zone: int, new_zones: List[int], proportions: List[float]
+                         ) -> DataFrame:
     """
     Takes a zone in a matrix (represented as a DataFrame) and splits it into several new zones,
     prorating affected cells by a vector of proportions (one value for each new zone). The old
@@ -272,7 +276,13 @@ def split_zone_in_matrix(base_matrix, old_zone, new_zones, proportions):
     return new_matrix
 
 
-def aggregate_matrix(matrix, groups=None, row_groups=None, col_groups=None, aggfunc=_np.sum):
+Num = Union[int, float]
+Vector = Union[_pd.Series, _np.ndarray]
+
+
+def aggregate_matrix(matrix: Union[_pd.DataFrame, _pd.Series], groups: Vector = None, row_groups: Vector = None,
+                     col_groups: Vector = None, aggfunc: Callable[[Iterable[Num]], Num] = _np.sum
+                     ) -> Union[_pd.DataFrame, _pd.Series]:
     """
     Aggregates a matrix based on mappings provided for each axis, using a specified aggregation function.
 
@@ -334,7 +344,7 @@ def aggregate_matrix(matrix, groups=None, row_groups=None, col_groups=None, aggf
         ``new_matrix = aggregate_matrix(matrix, groups=groups)``
 
         new_matrix:
-        
+
         +-------+----+----+----+
         |       | A  | B  | C  |
         +=======+====+====+====+
@@ -411,7 +421,7 @@ def _aggregate_series(matrix, row_aggregator, col_aggregator, aggfunc):
     return matrix.groupby([row_aggregator, col_aggregator]).aggregate(aggfunc)
 
 
-def fast_stack(frame, multi_index, deep_copy=True):
+def fast_stack(frame: _pd.DataFrame, multi_index: _pd.MultiIndex, deep_copy: bool = True) -> _pd.Series:
     """
     Performs the same action as DataFrame.stack(), but provides better performance when the target stacked index is
     known before hand. Useful in converting a lot of matrices from "wide" to "tall" format. The inverse of fast_unstack()
@@ -445,7 +455,7 @@ def fast_stack(frame, multi_index, deep_copy=True):
     return Series(array, index=multi_index)
 
 
-def fast_unstack(series, index, columns, deep_copy=True):
+def fast_unstack(series: _pd.Series, index: _pd.Index, columns: _pd.Index, deep_copy: bool = True) -> _pd.DataFrame:
     """
     Performs the same action as DataFrame.unstack(), but provides better performance when the target unstacked index and
     columns are known before hand. Useful in converting a lot of matrices from "tall" to "wide" format. The inverse of
@@ -496,8 +506,9 @@ def _check_disaggregation_input(mapping: Series, proportions: Series) -> _np.nda
     return proportions.values / parent_totals
 
 
-def disaggregate_matrix(matrix, mapping=None, proportions=None,row_mapping=None, row_proportions=None,
-                        col_mapping=None, col_proportions=None):
+def disaggregate_matrix(matrix: _pd.DataFrame, mapping: _pd.Series = None, proportions: _pd.Series = None,
+                        row_mapping: _pd.Series = None, row_proportions: _pd.Series = None,
+                        col_mapping: _pd.Series = None, col_proportions: _pd.Series = None) -> _pd.DataFrame:
     """
     Split multiple rows and columns in a matrix all at once. The cells in the matrix MUST be numeric, but the row and
     column labels do not.

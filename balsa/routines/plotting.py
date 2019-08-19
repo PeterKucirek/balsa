@@ -1,3 +1,7 @@
+from typing import List, Union, Dict, Callable, Tuple, Any, Optional
+from pathlib import Path
+
+from pandas import DataFrame, Series
 import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
@@ -5,9 +9,10 @@ from matplotlib.axes import Axes
 from matplotlib.ticker import FormatStrFormatter, StrMethodFormatter, FuncFormatter
 
 
-def convergence_boxplot(targets, results, filter_func,
-                        adjust_target=True, percentage=True, band=None,
-                        simple_labels=True, ax=None, fp=None, title=None):
+def convergence_boxplot(targets: DataFrame, results: DataFrame, filter_func: Callable[[Series], Series],
+                        adjust_target: bool = True, percentage: bool = True, band: Tuple[float, float] = None,
+                        simple_labels: bool = True, ax=None, fp: str = None, title: str = None
+                        ) -> Axes:
     """
     Measures convergence of constrained location-choice models (such as work-location choice). Can be used to
     produce multiple boxplots for different sub-sets of zones, usually based on size.
@@ -93,8 +98,9 @@ def convergence_boxplot(targets, results, filter_func,
         return ax
 
 
-def location_summary(model, target, ensemble_names, title='', fp=None,
-                     dpi=150, district_name='Ensemble'):
+def location_summary(model: DataFrame, target: DataFrame, ensemble_names: Series, title: str = '', fp: Path = None,
+                     dpi: int = 150, district_name: str = 'Ensemble'
+                     ) -> Axes:
     """
     Creates a compound plot showing total attractions to specified locations
 
@@ -166,9 +172,12 @@ def location_summary(model, target, ensemble_names, title='', fp=None,
     return ax
 
 
-def trumpet_diagram(counts, model_volume, categories=None, category_colours=None, category_markers=None,
-                    label_format=None, title='', y_bounds=(-2, 2), ax=None, x_label="Count volume", legend=True,
-                    **kwargs):
+def trumpet_diagram(counts: Series, model_volume: Series, categories: Union[Series, List[Series]] = None,
+                    category_colours: Dict[Union[Any, tuple]] = None, category_markers: Dict[Union[Any, tuple]] = None,
+                    label_format: str = None, title: str = '', y_bounds: Tuple[float, float] = (-2, 2),
+                    ax: Optional[Axes] = None, x_label: str = "Count volume", legend=True, **kwargs
+                    ) -> Axes:
+    pass
     """
     Plots a auto volumes "trumpet" diagram of relative error vs. target count, and will draw min/max error curves based
     on FHWA guidelines. Can be used to plot different categories of count locations.

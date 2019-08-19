@@ -3,15 +3,18 @@ General IO routines
 ===================
 
 """
-
+from typing import Union
 import numpy as np
 import pandas as pd
 from contextlib import contextmanager
 
 from pathlib import Path
 
+_FILE_TYPES = Union[Path, str]
+_MATRIX_TYPES = Union[pd.DataFrame, pd.Series, np.ndarray]
 
-def coerce_matrix(matrix, allow_raw=True, force_square=True):
+
+def coerce_matrix(matrix: _MATRIX_TYPES, allow_raw=True, force_square=True) -> np.ndarray:
     """
     Infers a NumPy array from given input
 
@@ -46,7 +49,7 @@ def coerce_matrix(matrix, allow_raw=True, force_square=True):
     return matrix
 
 
-def expand_array(a, n, axis=None):
+def expand_array(a: np.ndarray, n: int, axis: int = None) -> np.ndarray:
     """
     Expands an array across all dimensions by a set amount
 
@@ -74,7 +77,7 @@ def expand_array(a, n, axis=None):
 
 
 @contextmanager
-def open_file(file_handle, **kwargs):
+def open_file(file_handle: _FILE_TYPES, **kwargs):
     """
     Context manager for opening files provided as several different types. Supports a file handler as a str, unicode,
     pathlib.Path, or an already-opened handler.

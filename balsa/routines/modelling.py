@@ -1,10 +1,17 @@
+from typing import Iterable, Union
+
+from pandas import DataFrame, Series, Index
+from numpy import ndarray
 import pandas as pd
 import numpy as np
 import numexpr as ne
 
+_vector_type = Union[ndarray, Series]
 
-def tlfd(values, bin_start=0, bin_end=200, bin_step=2, weights=None, intrazonal=None, label_type='MULTI',
-                 include_top=False):
+
+def tlfd(values: _vector_type, bin_start: int = 0, bin_end: int = 200, bin_step: int = 2, weights: _vector_type = None,
+         intrazonal: _vector_type = None, label_type: str = 'MULTI', include_top: bool = False
+         ) -> Series:
     """
     Generates a Trip Length Frequency Distribution (i.e. a histogram) from given data. Produces a "pretty" Pandas object
     suitable for charting.
@@ -139,7 +146,9 @@ def _check_vectors(description: str, *vectors):
     return common_index, retval
 
 
-def distance_matrix(x0, y0, tall=False, method='euclidean', labels0=None, x1=None, y1=None, labels1=None, **kwargs):
+def distance_matrix(x0: _vector_type, y0: _vector_type, tall: bool = False, method: str = 'euclidean',
+                    labels0: Union[Iterable, Index] = None, x1: _vector_type = None, y1: _vector_type = None,
+                    labels1: Union[Iterable, Index] = None, **kwargs):
     """
     Fastest method of computing a distance matrix from vectors of coordinates, using the NumExpr package. Supports
     several equations for computing distances.
@@ -229,7 +238,8 @@ def distance_matrix(x0, y0, tall=False, method='euclidean', labels0=None, x1=Non
     return pd.DataFrame(raw_matrix, index=labels0, columns=labels1)
 
 
-def distance_array(x0, y0, x1, y1, method='euclidean', **kwargs):
+def distance_array(x0: _vector_type, y0: _vector_type, x1: _vector_type, y1: _vector_type, method: str = 'euclidean',
+                   **kwargs):
     """
     Fast method to compute distance between 2 (x, y) points, represented by 4 separate arrays, using the NumExpr
     package. Supports several equations for computing distances

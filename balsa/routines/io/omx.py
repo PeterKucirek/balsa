@@ -5,11 +5,12 @@ OMX format
 The Python library openmatrix already exists, but doesn't provide a lot of interoperability with Pandas. Balsa provides
 wrapper functions that produce Pandas DataFrames and Series directly from OMX files.
 """
-
+from typing import Iterable, Union, Dict
 import numpy as np
 import pandas as pd
 
 from ..matrices import fast_unstack
+from .common import _FILE_TYPES, _MATRIX_TYPES
 
 try:
     import openmatrix as omx
@@ -18,7 +19,8 @@ except ImportError:
 
 if omx is not None:
 
-    def read_omx(file, matrices=None, mapping=None, raw=False, tall=False, squeeze=True):
+    def read_omx(file: _FILE_TYPES, matrices: Iterable[str] = None, mapping: str = None, raw=False, tall=False,
+                 squeeze=True) -> Union[_MATRIX_TYPES, Dict[str, _MATRIX_TYPES]]:
         """
         Reads Open Matrix (OMX) files. An OMX file can contain multiple matrices, so this function
         typically returns a Dict.
@@ -76,7 +78,8 @@ if omx is not None:
             return return_value
 
 
-    def to_omx(file, matrices, zone_index=None, title='', descriptions=None, attrs=None, mapping='zone_numbers'):
+    def to_omx(file: str, matrices: Dict[str, _MATRIX_TYPES], zone_index: pd.Index = None, title: str = '',
+               descriptions: Dict[str, str] = None, attrs: Dict[str, dict] = None, mapping: str = 'zone_numbers'):
         """
         Creates a new (or overwrites an old) OMX file with a collection of matrices.
 

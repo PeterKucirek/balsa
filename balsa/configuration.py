@@ -3,11 +3,12 @@ import os
 from collections import OrderedDict
 import re
 from io import StringIO
+from typing import Union, Optional, Dict, Any, List
 
 from pathlib import Path
 
 from .routines.general import is_identifier
-from .routines.io.common import open_file
+from .routines.io.common import open_file, _FILE_TYPES
 
 
 class ConfigParseError(IOError):
@@ -28,16 +29,17 @@ class ConfigValue(object):
     """
 
     def __init__(self, value, name, owner=None):
-        self.value = value
-        self._name = str(name)
-        self._owner = owner
+
+        self.value: Union[str, List[Union[str, ConfigValue]]] = value
+        self._name: str = str(name)
+        self._owner: 'Config' = owner
 
     def __str__(self): return str(self.value)
 
     def __repr__(self): return "ConfigValue(%r)" % self.value
 
     @property
-    def namespace(self):
+    def namespace(self) -> str:
         """ Dot-separated name of this config value"""
         if self._owner is not None:
             return self._owner.namespace + '.' + self._name
@@ -65,7 +67,7 @@ class ConfigValue(object):
             )
             raise ConfigTypeError(message)
 
-    def as_bool(self):
+    def as_bool(self) -> bool:
         """
         Resolves the value to bool
 
@@ -74,7 +76,7 @@ class ConfigValue(object):
         """
         return self.as_type(bool)
 
-    def as_int(self):
+    def as_int(self) -> int:
         """
         Resolves the value to int
 
@@ -83,7 +85,7 @@ class ConfigValue(object):
         """
         return self.as_type(int)
 
-    def as_float(self):
+    def as_float(self) -> float:
         """
         Resolves the value to float
 
@@ -92,7 +94,7 @@ class ConfigValue(object):
         """
         return self.as_type(float)
 
-    def as_str(self):
+    def as_str(self) -> str:
         """
         Resolves the value to str
 
@@ -101,7 +103,7 @@ class ConfigValue(object):
         """
         return self.as_type(str)
 
-    def as_list(self, sub_type=None):
+    def as_list(self, sub_type=None) -> list:
         """
         Resolves the value to a list.
 
@@ -120,9 +122,9 @@ class ConfigValue(object):
             for item in self.as_type(list)
         ]
 
-    def as_path(self, parent=None):
+    def as_path(self, parent=None) -> Path:
         """
-        Resolves the value to Path type (available only when using Python 3)
+        Resolves the value to Path type
 
         Args:
             parent: Optional parent folder if this is a relative path
@@ -130,10 +132,9 @@ class ConfigValue(object):
         Raises:
             ConfigTypeError: If the value cannot be resolved to Path
         """
-        if parent is not None: return Path(parent) / Path(self.as_str())
-        return Path(self.as_str())
+        return Path(parent) / Path(self.as_str())
 
-    def as_set(self, sub_type=None):
+    def as_set(self, sub_type=None) -> set:
         """
         Converts the value to a set.
 
@@ -151,7 +152,7 @@ class ConfigValue(object):
             for item in self.as_type(set)
         }
 
-    def serialize(self):
+    def serialize(self) -> Union[list, Any]:
         if isinstance(self.value, list):
             return [x.serialize() for x in self.value]
         return self.value
@@ -182,10 +183,10 @@ class Config(object):
     """
 
     def __init__(self, config_dict, name=None, parent=None, file_=None):
-        self._contents = {}
-        self._name = name
-        self._parent = parent
-        self._file = file_
+        self._contents: dict = {}
+        self._name: str = name
+        self._parent: Optional['Config'] = parent
+        self._file: Optional[_FILE_TYPES] = file_
 
         for key, original_value in config_dict.items():
             if isinstance(original_value, dict):
@@ -211,18 +212,18 @@ class Config(object):
             self._contents[key] = value
 
     @property
-    def name(self):
+    def name(self) -> str:
         """ Short name of each part of the config. For non-root Configs, this will be the name of the attribute used
         to access this Config from the parent. """
         return self._name
 
     @property
-    def parent(self):
+    def parent(self) -> Optional['Config']:
         """ Pointer to the parent of non-root Configs."""
         return self._parent
 
     @property
-    def namespace(self):
+    def namespace(self) -> str:
         """The dot-separated namespace of this part of the full Config."""
         name = self._name if self._name is not None else '<unnamed>'
         if self._parent is None:
@@ -245,7 +246,7 @@ class Config(object):
             raise ConfigSpecificationError("Item '%s' is missing from config <%s>" % (item, self.namespace))
         return self._contents[item]
 
-    def as_dict(self, key_type=None, value_type=None):
+    def as_dict(self, key_type=None, value_type=None) -> dict:
         """
         Converts this entry to a primitive dictionary, using specified types for the keys and values.
 
@@ -285,14 +286,14 @@ class Config(object):
             retval[key] = val
         return retval
 
-    def serialize(self):
+    def serialize(self) -> dict:
         """Recursively converts the Config back to primitive dictionaries"""
         child_dict = OrderedDict()
         for attr, item in self._contents.items():
             child_dict[attr] = item.serialize()
         return child_dict
 
-    def to_file(self, fp):
+    def to_file(self, fp: _FILE_TYPES):
         """
         Writes the Config to a JSON file.
 
@@ -305,7 +306,7 @@ class Config(object):
             json.dump(dict_, writer, indent=2)
 
     @classmethod
-    def from_file(cls, fp):
+    def from_file(cls, fp: _FILE_TYPES) -> 'Config':
         """
         Reads a Config from a JSON file. Comments beginning with '//' are ignored.
 
@@ -330,7 +331,7 @@ class Config(object):
             return Config(dict_, name=root_name, file_=fp)
 
     @classmethod
-    def from_string(cls, s, file_name='<from_str>', root_name='<root>'):
+    def from_string(cls, s: str, file_name: str = '<from_str>', root_name: str = '<root>') -> 'Config':
         """
         Reads a Config from a JSON file as a string. Comments beginning with '//' are ignored.
 
@@ -355,7 +356,7 @@ class Config(object):
         return Config(dict_, name=root_name, file_=file_name)
 
     @staticmethod
-    def from_dict(dict_, file_name='<from_dict>', root_name='<root>'):
+    def from_dict(dict_: dict, file_name: str = '<from_dict>', root_name: str = '<root>') -> 'Config':
         """
         Converts a raw dictionary to a Config object.
 

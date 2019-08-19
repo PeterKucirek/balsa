@@ -5,11 +5,11 @@ FORTRAN optimized format
 For working with .bin files commonly used by certain legacy FORTRAN applications.
 
 """
-
+from typing import Any, Union
 import pandas as pd
 import numpy as np
 
-from .common import coerce_matrix, open_file, expand_array
+from .common import coerce_matrix, open_file, expand_array, _FILE_TYPES, _MATRIX_TYPES
 
 
 def _infer_fortran_zones(n_words):
@@ -19,7 +19,9 @@ def _infer_fortran_zones(n_words):
     return n
 
 
-def read_fortran_rectangle(file, n_columns, zones=None, tall=False, reindex_rows=False, fill_value=None):
+def read_fortran_rectangle(file: _FILE_TYPES, n_columns: int, zones: pd.Index = None, tall: bool = False,
+                           reindex_rows: bool = False, fill_value: Any = None
+                           ) -> Union[pd.Series, pd.DataFrame, np.ndarray]:
     """
     Reads a FORTRAN-friendly .bin file (a.k.a. 'simple binary format') which is known to NOT be square. Also works with
     square matrices.
@@ -84,7 +86,8 @@ def read_fortran_rectangle(file, n_columns, zones=None, tall=False, reindex_rows
         return matrix
 
 
-def read_fortran_square(file, zones=None, tall=False):
+def read_fortran_square(file: _FILE_TYPES, zones: pd.Index = None, tall: bool = False
+                        ) -> Union[pd.Series, pd.DataFrame, np.ndarray]:
     """
     Reads a FORTRAN-friendly .bin file (a.k.a. 'simple binary format') which is known to be square.
 
@@ -139,7 +142,8 @@ def read_fortran_square(file, zones=None, tall=False):
         return matrix.stack() if tall else matrix
 
 
-def to_fortran(matrix, file, n_columns=None, min_index=1, force_square=True):
+def to_fortran(matrix: _MATRIX_TYPES, file: _FILE_TYPES, n_columns: int = None,
+               min_index: int = 1, force_square: bool = True):
     """
     Reads a FORTRAN-friendly .bin file (a.k.a. 'simple binary format'), in a square format.
 

@@ -4,14 +4,14 @@ INRO binary matrix formats
 
 For working with binary matrix formats used by INRO Emme software.
 """
-
+from typing import Union, List
 import numpy as np
 import pandas as pd
 
-from .common import open_file, coerce_matrix
+from .common import open_file, coerce_matrix, _FILE_TYPES, _MATRIX_TYPES
 
 
-def read_mdf(file, raw=False, tall=False):
+def read_mdf(file: _FILE_TYPES, raw: bool = False, tall: bool = False) -> _MATRIX_TYPES:
     """
     Reads Emme's official matrix "binary serialization" format, created using inro.emme.matrix.MatrixData.save(). There
     is no official extension for this type of file; '.mdf' is recommended. '.emxd' is also sometimes encountered.
@@ -58,7 +58,7 @@ def read_mdf(file, raw=False, tall=False):
         raise NotImplementedError()  # This should never happen
 
 
-def to_mdf(matrix, file):
+def to_mdf(matrix: _MATRIX_TYPES, file: _FILE_TYPES):
     """
     Writes a matrix to Emme's official "binary serialization" format, to load using inro.emme.matrix.MatrixData.load().
     There is no official extension for this type of file; '.mdf' is recommended.
@@ -89,7 +89,7 @@ def to_mdf(matrix, file):
         data.tofile(writer)
 
 
-def peek_mdf(file, as_index=True):
+def peek_mdf(file: _FILE_TYPES, as_index: bool = True) -> Union[List[pd.Index], List[List[int]]]:
     """
     Partially opens an MDF file to get the zone system of its rows and its columns.
     Args:
@@ -120,7 +120,7 @@ def peek_mdf(file, as_index=True):
         return [pd.Index(zones) for zones in index_list]
 
 
-def read_emx(file, zones=None, tall=False):
+def read_emx(file: _FILE_TYPES, zones: pd.Index = None, tall: bool = False) -> _MATRIX_TYPES:
     """
     Reads an "internal" Emme matrix (found in <Emme Project>/Database/emmemat); with an '.emx' extension. This data
     format does not contain information about zones. Its size is determined by the dimensions of the Emmebank
@@ -188,7 +188,7 @@ def read_emx(file, zones=None, tall=False):
         return matrix.stack() if tall else matrix
 
 
-def to_emx(matrix, file, emmebank_zones):
+def to_emx(matrix: _MATRIX_TYPES, file: _FILE_TYPES, emmebank_zones: int):
     """
     Writes an "internal" Emme matrix (found in <Emme Project>/Database/emmemat); with an '.emx' extension. The number of
     zones that the Emmebank is dimensioned for must be known in order for the file to be written correctly.
