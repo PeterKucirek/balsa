@@ -173,10 +173,10 @@ def location_summary(model: DataFrame, target: DataFrame, ensemble_names: Series
 
 
 def trumpet_diagram(counts: Series, model_volume: Series, categories: Union[Series, List[Series]] = None,
-                    category_colours: Dict[Union[Any, tuple]] = None, category_markers: Dict[Union[Any, tuple]] = None,
-                    label_format: str = None, title: str = '', y_bounds: Tuple[float, float] = (-2, 2),
-                    ax: Optional[Axes] = None, x_label: str = "Count volume", legend=True, **kwargs
-                    ) -> Axes:
+                    category_colours: Dict[Union[Any, tuple], str] = None,
+                    category_markers: Dict[Union[Any, tuple], str] = None, label_format: str = None, title: str = '',
+                    y_bounds: Tuple[float, float] = (-2, 2), ax: Optional[Axes] = None, x_label: str = "Count volume",
+                    legend=True, **kwargs) -> Axes:
     pass
     """
     Plots a auto volumes "trumpet" diagram of relative error vs. target count, and will draw min/max error curves based
