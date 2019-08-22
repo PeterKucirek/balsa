@@ -11,8 +11,7 @@ from matplotlib.ticker import FormatStrFormatter, StrMethodFormatter, FuncFormat
 
 def convergence_boxplot(targets: DataFrame, results: DataFrame, filter_func: Callable[[Series], Series],
                         adjust_target: bool = True, percentage: bool = True, band: Tuple[float, float] = None,
-                        simple_labels: bool = True, ax=None, fp: str = None, title: str = None
-                        ) -> Axes:
+                        simple_labels: bool = True, ax=None, fp: str = None, title: str = None) -> Axes:
     """
     Measures convergence of constrained location-choice models (such as work-location choice). Can be used to
     produce multiple boxplots for different sub-sets of zones, usually based on size.
@@ -99,8 +98,7 @@ def convergence_boxplot(targets: DataFrame, results: DataFrame, filter_func: Cal
 
 
 def location_summary(model: DataFrame, target: DataFrame, ensemble_names: Series, title: str = '', fp: Path = None,
-                     dpi: int = 150, district_name: str = 'Ensemble'
-                     ) -> Axes:
+                     dpi: int = 150, district_name: str = 'Ensemble') -> Axes:
     """
     Creates a compound plot showing total attractions to specified locations
 
@@ -114,7 +112,7 @@ def location_summary(model: DataFrame, target: DataFrame, ensemble_names: Series
         district_name:
 
     Returns:
-
+        matplotlib.Axes
     """
 
     fig, ax = plt.subplots(1, 3, figsize=[16, 8], gridspec_kw={'width_ratios': [4, 2, 2]})
@@ -183,31 +181,33 @@ def trumpet_diagram(counts: Series, model_volume: Series, categories: Union[Seri
     on FHWA guidelines. Can be used to plot different categories of count locations.
 
     Args:
-        counts (Series): Target counts. Each item represents a different count location. Index does not need to be
+        counts (pandas.Series): Target counts. Each item represents a different count location. Index does not need to be
             unique.
-        model_volume (Series): Modelled volumes for each location. The index must match the counts Series.
-        categories (None or Series or List[Series]): Optional classification of each count location. Must match the
-            index of the count Series. Can be provided as a List of Series (which all must match the count index) to
-            enable tuple-based categorization.
-        category_colours (None or Dict[Union[str, tuple], str]): Mapping of each category to a colour, specified as a
-            hex string. Only used when categories are provided. Missing categories revert to None, using the default
-            colour for the current style.
-        category_markers (None or Dict[Union[str, tuple], str]): Mapping of each category to a matplotlib marker string
-            (see https://matplotlib.org/api/markers_api.html for options). Only used when categories are provided.
-            Missing categories revert to None, using the default marker for the current style.
-        label_format (str): Used to convert category values (especially tuples) into readable strings for the plot
-            legend. The relevant line of code is `current_label = label_format % category_key`. Only used when
-            categories are provided.
-        title (str): Optional title to set on the plot.
-        y_bounds (tuple): Limit of the Y-Axis. This is needed because relative errors can be very high close to the
-            y-intercept of the plot. Defaults to (-2, 2), or (-200%, 200%).
-        ax (None or Axes): Sub-Axes to add this plot to, if using subplots().
-        x_label (str): Label to use for the X-axis. The Y-axis is always "Relative Error"
-        legend (bool): Flag to add a legend.
-        kwargs: Additional kwargs to pass to DataFrame.plot.scatter()
+        model_volume (pandas.Series): Modelled volumes for each location. The index must match the counts Series.
+        categories (Union[pandas.Series, List[pandas.Series]], optional): Defaults to ``None``. Optional classification of each
+            count location. Must match the index of the count Series. Can be provided as a List of Series (which all
+            must match the count index) to enable tuple-based categorization.
+        category_colours (Dict[Union[str, tuple], str], optional): Defaults to ``None``. Mapping of each category to a
+            colour, specified as a hex string. Only used when categories are provided. Missing categories revert to
+            ``None``, using the default colour for the style.
+        category_markers (Dict[Union[str, tuple], str], optional): Defaults to ``None``. Mapping of each category to a
+            matplotlib marker string (see https://matplotlib.org/api/markers_api.html for options). Only used when
+            categories are provided. Missing categories revert to ``None``, using the default marker for the style.
+        label_format (str, optional): Defaults to ``None``. Used to convert category values (especially tuples) into
+            readable strings for the plot legend. The relevant line of code is
+            ``current_label = label_format % category_key``. Only used when categories are provided.
+        title (str, optional): The title to set on the plot.
+        y_bounds (tuple, optional): Defaults to ``(-2, 2)``, or (-200%, 200%). Limit of the Y-Axis. This is needed
+            because relative errors can be very high close to the y-intercept of the plot.
+        ax (matplotlib.Axes, optional): Defaults to ``None``. Sub-Axes to add this plot to, if using ``subplots()``.
+        x_label (str, optional): Defaults to ``'Count volume'``. Label to use for the X-axis. The Y-axis is always
+            "Relative Error"
+        legend (bool, optional): Defaults to ``True``. Flag to add a legend.
+        **kwargs: Additional kwargs to pass to ``DataFrame.plot.scatter()``
 
     Returns:
-        Axes: The Axes object generated from the plot. For most use cases, this is not really needed.
+        matplotlib.Axes:
+            The Axes object generated from the plot. For most use cases, this is not really needed.
 
     """
 
